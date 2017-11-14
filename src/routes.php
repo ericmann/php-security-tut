@@ -64,6 +64,27 @@ $app->post('/register', function ($request, $response, $args) {
 $app->any('/login', function ($request, $response, $args) {
 })->add(new PasswordAuthentication($container));
 
+$app->get('/recovery', function($request, $response, $args) {
+    $error = $request->getQueryParam('error');
+    if (!empty($this->errors[ $error ])) {
+        $args[ 'error' ] = $this->errors[ $error ];
+        $this->logger->error($args[ 'error' ]);
+    }
+    $message = $request->getQueryParam('message');
+    if (!empty($this->messages[ $message ])) {
+        $args[ 'message' ] = $this->messages[ $message ];
+    }
+
+    // Render index view
+    return $this->renderer->render($response, 'recovery.phtml', $args);
+});
+
+$app->post('/recovery', function($request, $response, $args) {
+    $email = $request->getParam('email');
+    
+    return $response->withRedirect('/?checkemail');
+});
+
 $app->get('/dashboard', function ($request, $response, $args) {
     if (!isset($_SESSION[ 'email' ]) || !($user_data = $this->users->get(bin2hex($_SESSION[ 'email' ])))) {
         $this->logger->error('Unauthorized access to dashboard');
