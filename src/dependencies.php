@@ -33,9 +33,10 @@ $container['logger'] = function ($c) {
 
 $container['messages'] = function($c) {
     return [
-        'checkemail' => 'Please check your email for a confirmation message.',
-        'logggedout' => 'You have successfully logged out.',
-        'updated'    => 'Your profile has been updated.'
+        'checkemail'          => 'Please check your email for a confirmation message.',
+        'logggedout'          => 'You have successfully logged out.',
+        'updated'             => 'Your profile has been updated.',
+        'transactioncomplete' => 'Your transaction was successful!'
     ];
 };
 $container['errors'] = function($c) {
@@ -43,6 +44,7 @@ $container['errors'] = function($c) {
         'notloggedin' => 'You are not logged in!',
         'useduser'    => 'That email address is already registered!',
         'emptyemail'  => 'Email address cannot be empty!',
-        'nomatch'     => 'Password fields do not match!'
+        'nomatch'     => 'Password fields do not match!',
+        'nsf'         => 'Insufficient funds to conduct transaction!'
     ];
 };

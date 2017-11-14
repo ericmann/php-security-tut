@@ -79,7 +79,7 @@ $app->any('/login', function ($request, $response, $args) {
 /**
  * Get the password recovery page
  */
-$app->get('/recovery', function($request, $response, $args) {
+$app->get('/recovery', function ($request, $response, $args) {
     $error = $request->getQueryParam('error');
     if (!empty($this->errors[ $error ])) {
         $args[ 'error' ] = $this->errors[ $error ];
@@ -97,7 +97,7 @@ $app->get('/recovery', function($request, $response, $args) {
 /**
  * Process an account recovery action
  */
-$app->post('/recovery', function($request, $response, $args) {
+$app->post('/recovery', function ($request, $response, $args) {
     $email = $request->getParam('email');
 
     return $response->withRedirect('/?message=checkemail');
@@ -132,7 +132,9 @@ $app->get('/dashboard', function ($request, $response, $args) {
         $value = 1;
     }
     $args[ 'value' ] = $value;
-    $args[ 'dollars' ] = $args[ 'balance' ] * $value;
+    $dollars = $args[ 'balance' ] * $value;
+
+    $args[ 'dollars' ] = floor($dollars * 1000) / 1000;
 
     return $this->renderer->render($response, 'dashboard.phtml', $args);
 });
@@ -184,21 +186,21 @@ $app->post('/profile', function ($request, $response, $args) {
 
     // Update the user
     $user = json_decode($this->users->get(bin2hex($_SESSION[ 'email' ])), true);
-    $user['firstName'] = $fname;
-    $user['lastName'] = $lname;
-    $user['password'] = ''; // @TODO what should be stored here?
+    $user[ 'firstName' ] = $fname;
+    $user[ 'lastName' ] = $lname;
+    $user[ 'password' ] = ''; // @TODO what should be stored here?
 
-    if(hash_equals($email, $_SESSION['email'])) {
-        $this->users->set(bin2hex($_SESSION['email']), json_encode($user));
+    if (hash_equals($email, $_SESSION[ 'email' ])) {
+        $this->users->set(bin2hex($_SESSION[ 'email' ]), json_encode($user));
     } else {
         if ($this->users->get(bin2hex($email))) {
             return $response->withRedirect('/profile?error=useduser');
         }
 
-        $user['email'] = $email;
+        $user[ 'email' ] = $email;
         $this->users->set(bin2hex($email), json_encode($user));
-        $this->users->delete(bin2hex($_SESSION['email']));
-        $_SESSION['email'] = $email;
+        $this->users->delete(bin2hex($_SESSION[ 'email' ]));
+        $_SESSION[ 'email' ] = $email;
     }
 
     return $response->withRedirect('/profile?message=updated');
@@ -228,7 +230,42 @@ $app->get('/value', function ($request, $response, $args) {
 /**
  * Logging out is a matter of clearing the PHP session and redirecting to the homepage.
  */
-$app->get('/logout', function($request, $response, $args) {
+$app->get('/logout', function ($request, $response, $args) {
     session_destroy();
     return $response->withRedirect('/?message=loggedout');
-} );
+});
+
+/**
+ * Handle buying/selling transactions
+ */
+$app->post('/transact', function ($request, $response, $args) {
+    $dollars = $request->getParam('dollars_in');
+    $coin = $request->getParam('coin_out');
+
+    $user = json_decode($this->users->get(bin2hex($_SESSION[ 'email' ])), true);
+    $balance = floatval($user[ 'balance' ]);
+
+    // Handle coin sales _first_
+    if (!empty($coin) && floatval($coin) > $balance) {
+        return $response->withRedirect('/dashboard?error=nsf');
+    } else {
+        $balance -= floatval($coin);
+    }
+
+    // Handle coin purchases
+    if (! empty($dollars)) {
+        $value = $this->coins->get('value');
+
+        if (!$value) {
+            $value = 1;
+        }
+
+        $balance += floatval($dollars) / $value;
+    }
+
+    // Update the balance
+    $user[ 'balance' ] = $balance;
+    $this->users->set(bin2hex($_SESSION[ 'email' ]), json_encode($user));
+
+    return $response->withRedirect('/dashboard?message=transactioncomplete');
+});

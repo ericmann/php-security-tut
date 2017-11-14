@@ -66,11 +66,33 @@
             <p>Current dollar balance: $<span id="dollars"><?php echo htmlspecialchars($dollars); ?></span></p>
         </section>
 
+        <form id="transaction" method="post" action="/transact">
+            <table>
+                <tr>
+                    <td>Buy</td>
+                    <td>Sell</td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="dollars_in" placeholder="$0.00" /></td>
+                    <td><input type="text" name="coin_out" placeholder="RNG 0.000"/></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="Go" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+
         <script type="text/javascript">
             let balance = window.parseFloat('<?php echo htmlspecialchars($balance); ?>')
             let val = document.getElementById('rng_val')
             let bal = document.getElementById('dollars')
 
+            /**
+             * Automatically refresh our coin value via JavaScript. This will also use a
+             * random number generator to change the current market value of our fake coin
+             */
             let refresh = () => fetch('/value')
                     .then(data => data.text())
                     .then(t => {
