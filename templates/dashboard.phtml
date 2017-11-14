@@ -66,7 +66,7 @@
             <p>Current dollar balance: $<span id="dollars"><?php echo htmlspecialchars($dollars); ?></span></p>
         </section>
 
-        <form id="transaction" method="post" action="/transact">
+        <form id="transaction" method="post" action="/transact" onsubmit="return authorize()">
             <table>
                 <tr>
                     <td>Buy</td>
@@ -103,6 +103,42 @@
                     })
 
             window.setInterval(refresh, 5000);
+
+            function checkSession(session) {
+            	return fetch('/status/' + session, {
+            		method: 'GET',
+                    credentials: 'same-origin'
+                })
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (data.status === 'pending') {
+                            window.setTimeout(() => checkSession(session), 5000)
+                        } else {
+                            window.location.reload();
+                        }
+                    })
+            }
+
+            function authorize() {
+            	alert('We will send a push to your mobile device to confirm!')
+	            let form = new FormData(document.getElementById('transaction'));
+	            // First, POST to the /transact endpoint, which will create a new transaction challenge
+                fetch('/transact', {
+                	method: 'POST',
+                    body: form,
+	                credentials: 'same-origin'
+                })
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (data.error) {
+                            window.location = window.location + '?error=' + data.error;
+                        } else {
+                            return checkSession(data.session_id)
+                        }
+                    })
+
+	            return false;
+            }
         </script>
     </body>
 </html>

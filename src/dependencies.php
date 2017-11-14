@@ -35,6 +35,18 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
+// Tozny
+$container['tozny'] = function($c) {
+    $settings = $c->get('settings')['tozny'];
+
+    return new Tozny_Remote_Realm_API($settings['realm_key_id'], $settings['realm_secret'], $settings['api_url']);
+};
+$container['tozny_user'] = function($c) {
+    $settings = $c->get('settings')['tozny'];
+
+    return new Tozny_Remote_User_API($settings['realm_key_id'], $settings['api_url']);
+};
+
 $container['messages'] = function($c) {
     return [
         'checkemail'          => 'Please check your email for a confirmation message.',

@@ -15,5 +15,10 @@ return [
             'path' => isset($_ENV['docker']) ? 'php://stdout' : __DIR__ . '/../logs/app.log',
             'level' => \Monolog\Logger::DEBUG,
         ],
+        'tozny' => [
+            'api_url'      => 'https://api.tozny.com',
+            'realm_key_id' => '',
+            'realm_secret' => ''
+        ]
     ],
 ];

@@ -380,7 +380,9 @@ $app->post('/transact', function ($request, $response, $args) {
 
     // Handle coin sales _first_
     if (!empty($coin) && floatval($coin) > $balance) {
-        return $response->withRedirect('/dashboard?error=nsf');
+        $response->getBody()->write(json_encode(['error' => 'nsf']));
+
+        return $response;
     } else {
         $balance -= floatval($coin);
     }
@@ -396,9 +398,44 @@ $app->post('/transact', function ($request, $response, $args) {
         $balance += floatval($dollars) / $value;
     }
 
-    // Update the balance
-    $user[ 'balance' ] = $balance;
-    $this->users->set(bin2hex($_SESSION[ 'email' ]), json_encode($user));
+    // Update the balance in a pending session
+    $_SESSION['new_balance'] = $balance;
 
-    return $response->withRedirect('/dashboard?message=transactioncomplete');
+    // Instantiate a Tozny challenge
+    $challenge = $this->tozny->questionChallenge('Do you authorize a purchase/sale of RNGCoin?', '');
+
+    // Push the Tozny challenge
+    $args = array(
+        'method'     => 'realm.user_push',
+        'user_id'    => '',
+        'session_id' => $challenge['session_id']
+    );
+    $this->tozny->rawCall($args);
+
+    $response->getBody()->write(json_encode($challenge));
+    return $response;
+});
+
+$app->get('/status/[{session}]', function ($request, $response, $args) {
+    $status = $this->tozny_user->checkSessionStatus($args['session']);
+
+    if (array_key_exists('status', $status) && $status['status'] === "pending") {
+        $response->getBody()->write(json_encode($status));
+        return $response;
+    } else {
+        $user = json_decode($this->users->get(bin2hex($_SESSION[ 'email' ])), true);
+        $balance = $_SESSION['new_balance'];
+
+        $user['balance'] = $balance;
+        $this->users->set(bin2hex($_SESSION['email']), json_encode($user));
+
+        $return = [
+            'val'     => $this->coins->get('value'),
+            'balance' => $balance
+        ];
+
+        $response->getBody()->write(json_encode($return));
+
+        return $response;
+    }
 });

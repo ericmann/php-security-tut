@@ -1966,5 +1966,33 @@
             }
         ],
         "description": "PHPMailer is a full-featured email creation and transfer class for PHP"
+    },
+    {
+        "name": "tozny/sdk-php",
+        "version": "1.4",
+        "version_normalized": "1.4.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/tozny/sdk-php.git",
+            "reference": "5376bc4037ace59bc815418b174f5aa3c954aa2c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/tozny/sdk-php/zipball/5376bc4037ace59bc815418b174f5aa3c954aa2c",
+            "reference": "5376bc4037ace59bc815418b174f5aa3c954aa2c",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2016-08-29T21:29:35+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "description": "PHP wrappers for the Tozny API",
+        "homepage": "http://github.com/tozny/sdk-php"
     }
 ]

@@ -1,0 +1,6 @@
+Package: tozny-api-php-client
+Version: @VERSION@
+Maintainer: James Bielman <jamesjb@tozny.com>
+Architecture: all
+Depends: apache2, php5, php5-json, php5-curl
+Description: PHP client for the Tozny API

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c564a0a06c3226f03f8b75e1a90aa8f",
+    "content-hash": "61386eb62532f1e16561304c543a1157",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -585,6 +585,32 @@
                 "router"
             ],
             "time": "2017-11-04T08:46:46+00:00"
+        },
+        {
+            "name": "tozny/sdk-php",
+            "version": "1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tozny/sdk-php.git",
+                "reference": "5376bc4037ace59bc815418b174f5aa3c954aa2c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tozny/sdk-php/zipball/5376bc4037ace59bc815418b174f5aa3c954aa2c",
+                "reference": "5376bc4037ace59bc815418b174f5aa3c954aa2c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHP wrappers for the Tozny API",
+            "homepage": "http://github.com/tozny/sdk-php",
+            "time": "2016-08-29T21:29:35+00:00"
         }
     ],
     "packages-dev": [
