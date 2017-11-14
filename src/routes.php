@@ -63,7 +63,7 @@ $app->post('/register', function ($request, $response, $args) {
         'balance' => random_int(0, 10), // Start off with a random gift balance ...
         'firstName' => $fname,
         'lastName' => $lname,
-        'password' => '' // @TODO What should be stored here?
+        'password' => password_hash($password, PASSWORD_DEFAULT)
     ];
     $this->users->set(bin2hex($email), json_encode($user));
     $_SESSION[ 'email' ] = $email;
@@ -209,7 +209,7 @@ $app->post('/profile', function ($request, $response, $args) {
     $user = json_decode($this->users->get(bin2hex($_SESSION[ 'email' ])), true);
     $user[ 'firstName' ] = $fname;
     $user[ 'lastName' ] = $lname;
-    $user[ 'password' ] = ''; // @TODO what should be stored here?
+    $user[ 'password' ] = password_hash($password, PASSWORD_DEFAULT); // @TODO what should be stored here?
 
     if (hash_equals($email, $_SESSION[ 'email' ])) {
         $this->users->set(bin2hex($_SESSION[ 'email' ]), json_encode($user));

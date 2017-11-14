@@ -46,10 +46,11 @@ $container['messages'] = function($c) {
 };
 $container['errors'] = function($c) {
     return [
-        'notloggedin' => 'You are not logged in!',
-        'useduser'    => 'That email address is already registered!',
-        'emptyemail'  => 'Email address cannot be empty!',
-        'nomatch'     => 'Password fields do not match!',
-        'nsf'         => 'Insufficient funds to conduct transaction!'
+        'invalidlogin' => 'Invalid authentication credentials',
+        'notloggedin'  => 'You are not logged in!',
+        'useduser'     => 'That email address is already registered!',
+        'emptyemail'   => 'Email address cannot be empty!',
+        'nomatch'      => 'Password fields do not match!',
+        'nsf'          => 'Insufficient funds to conduct transaction!'
     ];
 };

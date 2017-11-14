@@ -33,13 +33,12 @@ class PasswordAuthentication {
             var_dump($user);
             if ( $user ) {
                 /**
-                 * @TODO
                  * Once we have a user, we need to compare the provided password (during login) with the stored
                  * hash in the database. If they match, great! If not, move on and set a generic "invalid login"
                  * error.
                  */
                 $user_data = json_decode( $user, true );
-                if (true /** Validate password hash */) {
+                if (password_verify($password, $user_data['password'])) {
                     $_SESSION['email'] = $email;
                     return $response = $response->withRedirect('/dashboard');
                 }
