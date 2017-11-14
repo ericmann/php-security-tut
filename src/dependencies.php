@@ -47,10 +47,12 @@ $container['messages'] = function($c) {
 $container['errors'] = function($c) {
     return [
         'invalidlogin' => 'Invalid authentication credentials',
+        'invalidreset' => 'Invalid or expired reset token',
         'notloggedin'  => 'You are not logged in!',
         'useduser'     => 'That email address is already registered!',
         'emptyemail'   => 'Email address cannot be empty!',
         'nomatch'      => 'Password fields do not match!',
-        'nsf'          => 'Insufficient funds to conduct transaction!'
+        'nsf'          => 'Insufficient funds to conduct transaction!',
+        'mailerror'    => 'Error sending the password reset email.'
     ];
 };

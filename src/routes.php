@@ -2,6 +2,7 @@
 
 use Slim\Http\Request;
 use Slim\Http\Response;
+use PHPMailer\PHPMailer\PHPMailer;
 
 // Routes
 
@@ -100,10 +101,43 @@ $app->get('/recovery', function ($request, $response, $args) {
 $app->post('/recovery', function ($request, $response, $args) {
     $email = $request->getParam('email');
 
-    // @TODO Create a reset token for the user and store in the database
-    // $this->tokens->set() ...
+    // Ensure the user exists first
+    if ($this->users->get(bin2hex($email))) {
+        // Create a reset token for the user and store in the database
+        $token = bin2hex(random_bytes(32));
+        $lookup = substr($token, 0,32);
+        $verifier = substr($token, 32);
 
-    // @TODO Use PHPMailer to dispatch the token to the user
+        $this->tokens->set($lookup, [password_hash($verifier, PASSWORD_DEFAULT), $email, time()]);
+
+        // Use PHPMailer to dispatch the token to the user
+        $reset_link = sprintf('http://localhost:8080/reset?token=%s', $token);
+        $mail = new PHPMailer(true);
+        try {
+            // Server settings
+            $mail->SMTPDebug = 2;                  // Enable verbose debug output
+            $mail->isSMTP();                       // Set mailer to use SMTP
+            $mail->Host = 'localhost';             // Specify SMTP servers
+            $mail->Username = 'admin@rngcoin.com'; // SMTP username
+            $mail->Password = 'secret';            // SMTP password
+            $mail->Port = 1025;                    // TCP port to connect to
+
+            // Recipients
+            $mail->setFrom('admin@rngcoin.com', 'RNGCoin');
+            $mail->addAddress($email);     // Add a recipient
+
+            // Content
+            $mail->isHTML(true);                                  // Set email format to HTML
+            $mail->Subject = 'Reset your RNGCoin Password';
+            $mail->Body    = sprintf('Click <a href="%s">this link</a> to reset your password.', $reset_link);
+            $mail->AltBody = sprintf('Click this link to reset your password: %s', $reset_link);
+
+            $mail->send();
+        } catch (Exception $e) {
+            $this->logger->error($mail->ErrorInfo);
+            return $response->withRedirect('/?error=mailerror');
+        }
+    }
 
     // Redirect to the login page and inform the user an email is on the way
     return $response->withRedirect('/?message=checkemail');
@@ -115,13 +149,25 @@ $app->post('/recovery', function ($request, $response, $args) {
 $app->get('/reset', function ($request, $response, $args) {
     $token = $request->getQueryParam('token');
 
-    // @TODO Validate the reset token
+    // Validate the reset token
+    $lookup = substr($token, 0, 32);
+    $verify = substr($token, 32);
+    $token_data = $this->tokens->get($lookup);
 
-    // @TODO Transparently log the user in
-    // $_SESSION['email'] = '...';
+    if (password_verify($verify, $token_data[0]) ) {
+        // Make sure it's less than 15 minutes old
+        if (time() < ($token_data[2] + 60 * 15)) {
+            if ($this->users->get(bin2hex($token_data[1]))) {
+                // Transparently log the user in
+                $_SESSION['email'] = $token_data[1];
 
-    // Redirect to the profile page for account changes
-    return $response->withRedirect('/profile?message=resetpassword');
+                // Redirect to the profile page for account changes
+                return $response->withRedirect('/profile?message=resetpassword');
+            }
+        }
+    }
+
+    return $response->withRedirect('/?error=invalidreset');
 });
 
 /**
@@ -209,7 +255,7 @@ $app->post('/profile', function ($request, $response, $args) {
     $user = json_decode($this->users->get(bin2hex($_SESSION[ 'email' ])), true);
     $user[ 'firstName' ] = $fname;
     $user[ 'lastName' ] = $lname;
-    $user[ 'password' ] = password_hash($password, PASSWORD_DEFAULT); // @TODO what should be stored here?
+    $user[ 'password' ] = password_hash($password, PASSWORD_DEFAULT);
 
     if (hash_equals($email, $_SESSION[ 'email' ])) {
         $this->users->set(bin2hex($_SESSION[ 'email' ]), json_encode($user));
