@@ -100,7 +100,28 @@ $app->get('/recovery', function ($request, $response, $args) {
 $app->post('/recovery', function ($request, $response, $args) {
     $email = $request->getParam('email');
 
+    // @TODO Create a reset token for the user and store in the database
+    // $this->tokens->set() ...
+
+    // @TODO Use PHPMailer to dispatch the token to the user
+
+    // Redirect to the login page and inform the user an email is on the way
     return $response->withRedirect('/?message=checkemail');
+});
+
+/**
+ * Process an incoming recovery token
+ */
+$app->get('/reset', function ($request, $response, $args) {
+    $token = $request->getQueryParam('token');
+
+    // @TODO Validate the reset token
+
+    // @TODO Transparently log the user in
+    // $_SESSION['email'] = '...';
+
+    // Redirect to the profile page for account changes
+    return $response->withRedirect('/profile?message=resetpassword');
 });
 
 /**

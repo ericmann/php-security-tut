@@ -16,6 +16,10 @@ $container['coins'] = function ($c) {
     return new Flintstone\Flintstone('coins', array('dir' => __DIR__ . '/../data'));
 };
 
+$container['tokens'] = function ($c) {
+    return new Flintstone\Flintstone('tokens', array('dir' => __DIR__ . '/../data'));
+};
+
 // view renderer
 $container['renderer'] = function ($c) {
     $settings = $c->get('settings')['renderer'];
@@ -36,7 +40,8 @@ $container['messages'] = function($c) {
         'checkemail'          => 'Please check your email for a confirmation message.',
         'logggedout'          => 'You have successfully logged out.',
         'updated'             => 'Your profile has been updated.',
-        'transactioncomplete' => 'Your transaction was successful!'
+        'transactioncomplete' => 'Your transaction was successful!',
+        'resetpassword'       => 'Feel free to create a new password below.'
     ];
 };
 $container['errors'] = function($c) {
