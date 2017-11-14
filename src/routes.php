@@ -201,13 +201,34 @@ $app->get('/reset', function ($request, $response, $args) {
     if (password_verify($verify, $token_data[0]) ) {
         // Make sure it's less than 15 minutes old
         if (time() < ($token_data[2] + 60 * 15)) {
-            if ($this->users->get(bin2hex($token_data[1]))) {
-                // Transparently log the user in
-                $_SESSION['email'] = $token_data[1];
+            // Set up a temporary reset session
+            $_SESSION['reset_for'] = $token_data[1];
 
-                // Redirect to the profile page for account changes
-                return $response->withRedirect('/profile?message=resetpassword');
-            }
+            // Delete the token
+            $this->tokens->delete($lookup);
+
+            return $this->renderer->render($response, 'reset.phtml', $args);
+        }
+    }
+
+    return $response->withRedirect('/?error=invalidreset');
+});
+
+/**
+ * Process the reset token and request a 2fa code
+ */
+$app->post('/reset', function($request, $response, $args) {
+    $token = $request->getParam('2fa');
+    $email = $_SESSION['reset_for'];
+
+    if ($user = $this->users->get(bin2hex($email))) {
+        $user_data = json_decode($user, true);
+        if (PasswordAuthentication::is_valid_authcode($user_data['totp_key'], $token)) {
+            // Transparently log the user in
+            $_SESSION['email'] = $email;
+
+            // Redirect to the profile page for account changes
+            return $response->withRedirect('/profile?message=resetpassword');
         }
     }
 

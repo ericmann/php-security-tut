@@ -21,7 +21,7 @@ class PasswordAuthentication {
      *
      * @return bool Whether the code is valid within the time frame
      */
-    private static function is_valid_authcode( $key, $authcode ) {
+    public static function is_valid_authcode( $key, $authcode ) {
         /**
          * Ticks are the allowed offset from the correct time in 30 second increments,
          * so the default of 4 allows codes that are two minutes to either side of server time

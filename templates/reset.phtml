@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>PHP Security Walkthrough</title>
+        <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+        <style>
+            body {
+                margin: 50px 0 0 0;
+                padding: 0;
+                width: 100%;
+                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                text-align: center;
+                color: #aaa;
+                font-size: 18px;
+            }
+
+            h1 {
+                color: #719e40;
+                letter-spacing: -3px;
+                font-family: 'Lato', sans-serif;
+                font-size: 100px;
+                font-weight: 200;
+                margin-bottom: 0;
+            }
+
+            table {
+                margin: auto;
+            }
+
+            table td {
+                text-align: left;
+            }
+
+            #action {
+                position: absolute;
+                right: 20px;
+                top: 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>RNGCoin</h1>
+
+        <section id="messages">
+            <?php if ( isset( $message ) ) : ?>
+                <p><?php echo $message; ?></p>
+            <?php endif; ?>
+        </section>
+
+        <section id="errors">
+            <?php if ( isset( $error ) ) : ?>
+                <p><?php echo $error; ?></p>
+            <?php endif; ?>
+        </section>
+
+        <section id="main">
+            <form method="post" action="/reset">
+                <table>
+                    <tr>
+                        <td>
+                            <label for="2fa">Please enter a code from your 2FA device:</label>
+                        </td>
+                        <td>
+                            <input type="text" name="2fa" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <input type="submit" value="Submit" />
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </section>
+    </body>
+</html>
