@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>PHP Security Walkthrough</title>
+    <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+    <style>
+        body {
+            margin: 50px 0 0 0;
+            padding: 0;
+            width: 100%;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            text-align: center;
+            color: #aaa;
+            font-size: 18px;
+        }
+
+        h1 {
+            color: #719e40;
+            letter-spacing: -3px;
+            font-family: 'Lato', sans-serif;
+            font-size: 40px;
+            font-weight: 200;
+            margin-bottom: 20px;
+        }
+        table {
+            margin: auto;
+        }
+        table td {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<h1>RNGCoin</h1>
+
+<section id="errors">
+    <?php if ( isset( $error ) ) : ?>
+        <p><?php echo $error; ?></p>
+    <?php endif; ?>
+</section>
+
+<section id="main">
+    <form method="post" action="/register">
+        <table>
+            <tr>
+                <td>
+                    <label for="fname">First Name</label>
+                </td>
+                <td>
+                    <input type="text" name="fname" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="lname">Last Name</label>
+                </td>
+                <td>
+                    <input type="text" name="lname" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="email">Email Address</label>
+                </td>
+                <td>
+                    <input type="email" name="email" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="password">Password</label>
+                </td>
+                <td>
+                    <input type="password" name="password" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="password_confirm">Confirm Password</label>
+                </td>
+                <td>
+                    <input type="password" name="password_confirm" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <input type="submit" value="Register" />
+                </td>
+            </tr>
+        </table>
+        <p><a href="/">Login</a></p>
+    </form>
+</section>
+</body>
+</html>

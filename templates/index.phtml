@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8"/>
-        <title>Slim 3</title>
+        <title>PHP Security Walkthrough</title>
         <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
         <style>
             body {
@@ -23,16 +23,58 @@
                 font-weight: 200;
                 margin-bottom: 0;
             }
+
+            table {
+                margin: auto;
+            }
+
+            table td {
+                text-align: left;
+            }
         </style>
     </head>
     <body>
-        <h1>Slim</h1>
-        <div>a microframework for PHP</div>
+        <h1>RNGCoin</h1>
 
-        <?php if (isset($name)) : ?>
-            <h2>Hello <?= htmlspecialchars($name); ?>!</h2>
-        <?php else: ?>
-            <p>Try <a href="http://www.slimframework.com">SlimFramework</a></p>
-        <?php endif; ?>
+        <section id="messages">
+            <?php if ( isset( $message ) ) : ?>
+                <p><?php echo $message; ?></p>
+            <?php endif; ?>
+        </section>
+
+        <section id="errors">
+            <?php if ( isset( $error ) ) : ?>
+                <p><?php echo $error; ?></p>
+            <?php endif; ?>
+        </section>
+
+        <section id="main">
+            <form method="post" action="/login">
+                <table>
+                    <tr>
+                        <td>
+                            <label for="username">Username</label>
+                        </td>
+                        <td>
+                            <input type="text" name="username" />
+                        </td>
+                    </tr>
+                    <tr class="password">
+                        <td>
+                            <label for="password">Password</label>
+                        </td>
+                        <td>
+                            <input type="password" name="password" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <input type="submit" value="Login" />
+                        </td>
+                    </tr>
+                </table>
+                <p><a href="/register">Create an account</a></p>
+            </form>
+        </section>
     </body>
 </html>
