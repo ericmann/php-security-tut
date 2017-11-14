@@ -44,6 +44,7 @@
 
         <section id="action">
             <a href="/logout">Log out</a>
+            <a href="/profile">Profile</a>
         </section>
 
         <section id="messages">
@@ -75,7 +76,8 @@
                     .then(t => {
                     	let real_value = window.parseFloat(t)
                         val.innerText = real_value
-                        bal.innerText = real_value * balance
+                        let current =  Math.floor(real_value * balance * 1000) / 1000
+                        bal.innerText = current
                     })
 
             window.setInterval(refresh, 5000);
