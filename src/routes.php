@@ -6,56 +6,120 @@ use Slim\Http\Response;
 // Routes
 
 $app->get('/', function (Request $request, Response $response, array $args) {
-    $error = $request->getQueryParam( 'error' );
-    if ( ! empty( $this->errors[ $error ] ) ) {
-        $args['error'] = $this->errors[ $error ];
-        $this->logger->error($args['error']);
+    $error = $request->getQueryParam('error');
+    if (!empty($this->errors[ $error ])) {
+        $args[ 'error' ] = $this->errors[ $error ];
+        $this->logger->error($args[ 'error' ]);
     }
-    $message = $request->getQueryParam( 'message' );
-    if ( ! empty( $this->messages[ $message ] ) ) {
-        $args['message'] = $this->messages[ $message ];
+    $message = $request->getQueryParam('message');
+    if (!empty($this->messages[ $message ])) {
+        $args[ 'message' ] = $this->messages[ $message ];
     }
 
     // Render index view
     return $this->renderer->render($response, 'index.phtml', $args);
 });
 
-$app->get('/register', function($request, $response, $args) {
-    $error = $request->getQueryParam( 'error' );
-    if ( ! empty( $this->errors[ $error ] ) ) {
+$app->get('/register', function ($request, $response, $args) {
+    $error = $request->getQueryParam('error');
+    if (!empty($this->errors[ $error ])) {
         $args[ 'error' ] = $this->errors[ $error ];
-        $this->logger->error($args['error']);
+        $this->logger->error($args[ 'error' ]);
     }
 
     // Render registration view
     return $this->renderer->render($response, 'register.phtml', $args);
 });
 
-$app->post('/register', function($request, $response, $args) {
+$app->post('/register', function ($request, $response, $args) {
     $fname = $request->getParam('fname');
     $lname = $request->getParam('lname');
     $email = $request->getParam('email');
     $password = $request->getParam('password');
     $cpassword = $request->getParam('password_confirm');
 
-    if ( empty( $email ) || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $this->logger->error('Empty or invalid email address');
         return $response->withRedirect('/register?error=emptyemail');
     }
-    if ( $this->users->get( base64_encode($email) ) ) {
+    if ($this->users->get(bin2hex($email))) {
         $this->logger->error(sprintf('Duplicate email %s', $email));
         return $response->withRedirect('/register?error=useduser');
     }
-    if (! hash_equals($password, $cpassword) ) {
+    if (!hash_equals($password, $cpassword)) {
         return $response->withRedirect('/register?error=nomatch');
     }
     $user = [
-        'email'     => $email,
+        'email' => $email,
+        'balance' => random_int(0, 10), // Start off with a random gift balance ...
         'firstName' => $fname,
-        'lastName'  => $lname,
-        'password'  => '' // @TODO What should be stored here?
+        'lastName' => $lname,
+        'password' => '' // @TODO What should be stored here?
     ];
-    $this->users->set(base64_encode($email), json_encode( $user ) );
-    $_SESSION['email'] = $email;
+    $this->users->set(bin2hex($email), json_encode($user));
+    $_SESSION[ 'email' ] = $email;
     return $response->withRedirect('/dashboard');
 });
+
+$app->any('/login', function ($request, $response, $args) {
+})->add(new PasswordAuthentication($container));
+
+$app->get('/dashboard', function ($request, $response, $args) {
+    if (!isset($_SESSION[ 'email' ]) || !($user_data = $this->users->get(bin2hex($_SESSION[ 'email' ])))) {
+        $this->logger->error('Unauthorized access to dashboard');
+        return $response->withRedirect('/?error=notloggedin');
+    }
+    $error = $request->getQueryParam('error');
+    if (!empty($this->errors[ $error ])) {
+        $args[ 'error' ] = $this->errors[ $error ];
+        $this->logger->error($args[ 'error' ]);
+    }
+    $message = $request->getQueryParam('message');
+    if (!empty($this->messages[ $message ])) {
+        $args[ 'message' ] = $this->messages[ $message ];
+    }
+
+    $user = json_decode($user_data, true);
+    $args[ 'fName' ] = $user[ 'firstName' ];
+    $args[ 'lName' ] = $user[ 'lastName' ];
+    $args[ 'balance' ] = $user[ 'balance' ];
+
+    $value = $this->coins->get('value');
+
+    if (!$value) {
+        $value = 1;
+    }
+    $args[ 'value' ] = $value;
+    $args[ 'dollars' ] = $args[ 'balance' ] * $value;
+
+    return $this->renderer->render($response, 'dashboard.phtml', $args);
+});
+
+/**
+ * Get the current value of our random cryptocurrency ...
+ */
+$app->get('/value', function ($request, $response, $args) {
+    $value = $this->coins->get('value');
+
+    if (!$value) {
+        $value = 1;
+    }
+
+    $updown = random_int(0, 10) % 2 ? -1 : 1;
+    $amount = random_int(0, 10) / 1000;
+
+    $value += $updown * $amount;
+    $this->coins->set('value', $value);
+
+    $response->getBody()->write($value);
+
+    return $response;
+});
+
+/**
+ * Logging out is a matter of clearing the PHP session and redirecting to the homepage.
+ */
+$app->get('/logout', function($request, $response, $args) {
+    session_destroy();
+    return $response->withRedirect('/?loggedout');
+} );

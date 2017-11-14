@@ -12,6 +12,10 @@ $container['users'] = function ($c) {
     return new Flintstone\Flintstone('users', array('dir' => __DIR__ . '/../data'));
 };
 
+$container['coins'] = function ($c) {
+    return new Flintstone\Flintstone('coins', array('dir' => __DIR__ . '/../data'));
+};
+
 // view renderer
 $container['renderer'] = function ($c) {
     $settings = $c->get('settings')['renderer'];

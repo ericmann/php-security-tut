@@ -24,11 +24,13 @@ class PasswordAuthentication {
     public function __invoke($request, $response, $next) {
         $email = $request->getParam( 'email' );
         $password = $request->getParam( 'password' );
-        // If no username/password, more to the next stack
+
+        // If no username/password, error
         if ( empty($email) || empty($password) ) {
-            $response = $next( $request, $response );
+            return $response = $response->withRedirect('/?error=invalidlogin');
         } else {
-            $user = $this->container->users->get(base64_encode($email));
+            $user = $this->container->users->get(bin2hex($email));
+            var_dump($user);
             if ( $user ) {
                 /**
                  * @TODO

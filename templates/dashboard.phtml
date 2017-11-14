@@ -31,10 +31,20 @@
             table td {
                 text-align: left;
             }
+
+            #action {
+                position: absolute;
+                right: 20px;
+                top: 0px;
+            }
         </style>
     </head>
     <body>
         <h1>RNGCoin</h1>
+
+        <section id="action">
+            <a href="/logout">Log out</a>
+        </section>
 
         <section id="messages">
             <?php if ( isset( $message ) ) : ?>
@@ -49,32 +59,26 @@
         </section>
 
         <section id="main">
-            <form method="post" action="/login">
-                <table>
-                    <tr>
-                        <td>
-                            <label for="username">Email Address</label>
-                        </td>
-                        <td>
-                            <input type="text" name="email" />
-                        </td>
-                    </tr>
-                    <tr class="password">
-                        <td>
-                            <label for="password">Password</label>
-                        </td>
-                        <td>
-                            <input type="password" name="password" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: center;">
-                            <input type="submit" value="Login" />
-                        </td>
-                    </tr>
-                </table>
-                <p><a href="/register">Create an account</a></p>
-            </form>
+            <p>Welcome, <?php echo htmlspecialchars($fName); ?>!</p>
+            <p>Current balance: RNG <?php echo htmlspecialchars($balance); ?></p>
+            <p>Current RNGCoin value: $<span id="rng_val"><?php echo htmlspecialchars($value); ?></span></p>
+            <p>Current dollar balance: $<span id="dollars"><?php echo htmlspecialchars($dollars); ?></span></p>
         </section>
+
+        <script type="text/javascript">
+            let balance = window.parseFloat('<?php echo htmlspecialchars($balance); ?>')
+            let val = document.getElementById('rng_val')
+            let bal = document.getElementById('dollars')
+
+            let refresh = () => fetch('/value')
+                    .then(data => data.text())
+                    .then(t => {
+                    	let real_value = window.parseFloat(t)
+                        val.innerText = real_value
+                        bal.innerText = real_value * balance
+                    })
+
+            window.setInterval(refresh, 5000);
+        </script>
     </body>
 </html>
