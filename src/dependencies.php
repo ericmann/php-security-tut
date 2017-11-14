@@ -30,3 +30,19 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
+
+$container['messages'] = function($c) {
+    return [
+        'checkemail' => 'Please check your email for a confirmation message.',
+        'logggedout' => 'You have successfully logged out.',
+        'updated'    => 'Your profile has been updated.'
+    ];
+};
+$container['errors'] = function($c) {
+    return [
+        'notloggedin' => 'You are not logged in!',
+        'useduser'    => 'That email address is already registered!',
+        'emptyemail'  => 'Email address cannot be empty!',
+        'nomatch'     => 'Password fields do not match!'
+    ];
+};

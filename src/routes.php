@@ -5,6 +5,9 @@ use Slim\Http\Response;
 
 // Routes
 
+/**
+ * Get the standard login splash page
+ */
 $app->get('/', function (Request $request, Response $response, array $args) {
     $error = $request->getQueryParam('error');
     if (!empty($this->errors[ $error ])) {
@@ -20,6 +23,9 @@ $app->get('/', function (Request $request, Response $response, array $args) {
     return $this->renderer->render($response, 'index.phtml', $args);
 });
 
+/**
+ * Get the new account registration page
+ */
 $app->get('/register', function ($request, $response, $args) {
     $error = $request->getQueryParam('error');
     if (!empty($this->errors[ $error ])) {
@@ -31,6 +37,9 @@ $app->get('/register', function ($request, $response, $args) {
     return $this->renderer->render($response, 'register.phtml', $args);
 });
 
+/**
+ * Process a new registration
+ */
 $app->post('/register', function ($request, $response, $args) {
     $fname = $request->getParam('fname');
     $lname = $request->getParam('lname');
@@ -61,9 +70,15 @@ $app->post('/register', function ($request, $response, $args) {
     return $response->withRedirect('/dashboard');
 });
 
+/**
+ * Process a login attempt
+ */
 $app->any('/login', function ($request, $response, $args) {
 })->add(new PasswordAuthentication($container));
 
+/**
+ * Get the password recovery page
+ */
 $app->get('/recovery', function($request, $response, $args) {
     $error = $request->getQueryParam('error');
     if (!empty($this->errors[ $error ])) {
@@ -79,12 +94,18 @@ $app->get('/recovery', function($request, $response, $args) {
     return $this->renderer->render($response, 'recovery.phtml', $args);
 });
 
+/**
+ * Process an account recovery action
+ */
 $app->post('/recovery', function($request, $response, $args) {
     $email = $request->getParam('email');
-    
-    return $response->withRedirect('/?checkemail');
+
+    return $response->withRedirect('/?message=checkemail');
 });
 
+/**
+ * Get a user's logged-in dashboard
+ */
 $app->get('/dashboard', function ($request, $response, $args) {
     if (!isset($_SESSION[ 'email' ]) || !($user_data = $this->users->get(bin2hex($_SESSION[ 'email' ])))) {
         $this->logger->error('Unauthorized access to dashboard');
@@ -116,6 +137,9 @@ $app->get('/dashboard', function ($request, $response, $args) {
     return $this->renderer->render($response, 'dashboard.phtml', $args);
 });
 
+/**
+ * Get a user's profile page
+ */
 $app->get('/profile', function ($request, $response, $args) {
     if (!isset($_SESSION[ 'email' ]) || !($user_data = $this->users->get(bin2hex($_SESSION[ 'email' ])))) {
         $this->logger->error('Unauthorized access to profile');
@@ -139,6 +163,9 @@ $app->get('/profile', function ($request, $response, $args) {
     return $this->renderer->render($response, 'profile.phtml', $args);
 });
 
+/**
+ * Process any profile updates
+ */
 $app->post('/profile', function ($request, $response, $args) {
     $fname = $request->getParam('fname');
     $lname = $request->getParam('lname');
@@ -164,13 +191,17 @@ $app->post('/profile', function ($request, $response, $args) {
     if(hash_equals($email, $_SESSION['email'])) {
         $this->users->set(bin2hex($_SESSION['email']), json_encode($user));
     } else {
+        if ($this->users->get(bin2hex($email))) {
+            return $response->withRedirect('/profile?error=useduser');
+        }
+
         $user['email'] = $email;
         $this->users->set(bin2hex($email), json_encode($user));
         $this->users->delete(bin2hex($_SESSION['email']));
         $_SESSION['email'] = $email;
     }
 
-    return $response->withRedirect('/profile?updated');
+    return $response->withRedirect('/profile?message=updated');
 });
 
 /**
@@ -199,5 +230,5 @@ $app->get('/value', function ($request, $response, $args) {
  */
 $app->get('/logout', function($request, $response, $args) {
     session_destroy();
-    return $response->withRedirect('/?loggedout');
+    return $response->withRedirect('/?message=loggedout');
 } );
