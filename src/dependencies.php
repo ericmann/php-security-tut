@@ -41,7 +41,8 @@ $container['messages'] = function($c) {
         'logggedout'          => 'You have successfully logged out.',
         'updated'             => 'Your profile has been updated.',
         'transactioncomplete' => 'Your transaction was successful!',
-        'resetpassword'       => 'Feel free to create a new password below.'
+        'resetpassword'       => 'Feel free to create a new password below.',
+        '2fa'                 => 'Please configure your 2FA device with the token below!'
     ];
 };
 $container['errors'] = function($c) {

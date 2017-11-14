@@ -4,6 +4,49 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
+// Helpers
+
+/**
+ * Get or create a random HMAC key for users setting up 2FA devices.
+ *
+ * @param string                $email
+ * @param Flintstone\Flintstone $db
+ *
+ * @return string
+ */
+function get_totp_token($email, $db)
+{
+    $user_data = json_decode($db->get(bin2hex($email)), true);
+    if (isset( $user_data['totp_key'])) {
+        return $user_data['totp_key'];
+    }
+
+    $key = generate_key();
+    $user_data['totp_key'] = $key;
+
+    $db->set(bin2hex($email), json_encode($user_data));
+    return $key;
+}
+
+/**
+ * Generates key
+ *
+ * @param int $bitsize Nume of bits to use for key.
+ *
+ * @return string $bitsize long string composed of available base32 chars.
+ */
+function generate_key( $bitsize = 128 ) {
+    $base_32_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+    $s 	= '';
+
+    for ( $i = 0; $i < $bitsize / 8; $i++ ) {
+        $s .= $base_32_chars[ rand( 0, 31 ) ];
+    }
+
+    return $s;
+}
+
 // Routes
 
 /**
@@ -64,11 +107,12 @@ $app->post('/register', function ($request, $response, $args) {
         'balance' => random_int(0, 10), // Start off with a random gift balance ...
         'firstName' => $fname,
         'lastName' => $lname,
-        'password' => password_hash($password, PASSWORD_DEFAULT)
+        'password' => password_hash($password, PASSWORD_DEFAULT),
+        'totp_key' => generate_key()
     ];
     $this->users->set(bin2hex($email), json_encode($user));
     $_SESSION[ 'email' ] = $email;
-    return $response->withRedirect('/dashboard');
+    return $response->withRedirect('/profile?message=2fa');
 });
 
 /**
@@ -228,6 +272,7 @@ $app->get('/profile', function ($request, $response, $args) {
     $args[ 'fName' ] = $user[ 'firstName' ];
     $args[ 'lName' ] = $user[ 'lastName' ];
     $args[ 'email' ] = $user[ 'email' ];
+    $args[ 'totp_key' ] = get_totp_token( $args[ 'email' ], $this->users );
 
     return $this->renderer->render($response, 'profile.phtml', $args);
 });

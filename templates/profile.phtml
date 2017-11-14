@@ -84,6 +84,14 @@
                 </td>
             </tr>
             <tr>
+                <td>
+                    <label for="totp_key">TOTP Key</label>
+                </td>
+                <td>
+                    <input type="text" readonly="readonly" name="totp_key" value="<?php echo htmlspecialchars($totp_key); ?>" />
+                </td>
+            </tr>
+            <tr>
                 <td colspan="2" style="text-align: center;">
                     <input type="submit" value="Update Profile" />
                 </td>
